@@ -2,5 +2,9 @@
 - hosts: localhost
   gather_facts: no
   roles:
-  - ansible-cluster-network-setup
+  - add-networks
+
+- hosts: cluster
+  roles:
+  - attach-ib
 ...

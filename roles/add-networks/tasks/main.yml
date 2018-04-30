@@ -1,0 +1,38 @@
+---
+- name: get node and master addresses
+  shell: "openstack coe cluster show {{ cluster_name }} -c master_addresses -c node_addresses -f json"
+  register: result_addresses
+
+- name: get list of servers
+  shell: "openstack server list -c ID -c Networks -f json"
+  register: result_servers
+
+- name: convert results to json
+  set_fact:
+    addresses: "{{ result_addresses.stdout | from_json }}"
+    servers: "{{ result_servers.stdout | from_json }}"
+
+- name: add masters
+  add_host:
+    hostname: "{{ item[1].ID }}"
+    ansible_host: "{{ item[0] }}"
+    groups:
+    - masters
+    - cluster
+  when: item[1].Networks is search(item[0])
+  loop: "{{ query('nested', addresses.master_addresses, servers) }}"
+
+- name: add workers
+  add_host:
+    hostname: "{{ item[1].ID }}"
+    ansible_host: "{{ item[0] }}"
+    groups:
+    - workers
+    - cluster
+  when: item[1].Networks is search(item[0])
+  loop: "{{ query('nested', addresses.node_addresses, servers) }}"
+
+- name: attach interfaces
+  shell: "openstack server add network {{ item[0] }} {{ item[1] }}"
+  loop: "{{ query('nested', groups['cluster'], networks) }}"
+...
