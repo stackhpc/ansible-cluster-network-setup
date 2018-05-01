@@ -26,6 +26,9 @@
   add_host:
     hostname: "{{ item[1].ID }}"
     ansible_host: "{{ item[0] }}"
+    ansible_user: "{{ cluster_user }}"
+    Networks: "{{ item[1].Networks }}"
+    networks: "{{ item[1].Networks.split('; ') | join('\n') | regex_replace('=', ': ') | from_yaml }}"
     groups:
     - workers
     - cluster
@@ -34,5 +37,7 @@
 
 - name: attach interfaces
   shell: "openstack server add network {{ item[0] }} {{ item[1] }}"
+  #debug: var=hostvars[item[0]]['networks'][item[1]]
+  when: hostvars[item[0]]['networks'] is defined and hostvars[item[0]]['networks'][item[1]] is not defined
   loop: "{{ query('nested', groups['cluster'], networks) }}"
 ...
