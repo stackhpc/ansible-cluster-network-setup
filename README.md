@@ -6,5 +6,5 @@ to a Kubernetes or Docker swarm cluster already provisioned by Magnum.
 Usage:
 
 ```
-ansible-playbook cluster-network-setup.yml -e cluster_name=swarm-cluster cluster_user=fedora
+ansible-playbook cluster-network-setup.yml 
 ```

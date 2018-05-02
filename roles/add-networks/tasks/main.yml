@@ -17,7 +17,6 @@
     hostname: "{{ item[1].ID }}"
     ansible_host: "{{ item[0] }}"
     ansible_user: "{{ cluster_user }}"
-    ansible_network_os: "{{ cluster_os }}"
     networks: "{{ item[1].Networks.split('; ') | join('\n') | regex_replace('=', ': ') | from_yaml }}"
     groups:
     - masters
