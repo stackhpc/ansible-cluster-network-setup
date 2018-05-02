@@ -10,7 +10,7 @@
 - name: Ensure any required kernel modules are loaded
   modprobe:
     name: "{{ item }}"
-    state: present
+    state: absent
   become: True
   with_items: "{{ ib_mods }}"
 
@@ -19,6 +19,7 @@
     dest: /etc/modules-load.d/ib-mods.conf
     line: "{{ item }}"
     create: yes
+    state: absent
   become: True
   when: modules_load_stat.stat.exists
   with_items: "{{ ib_mods }}"
@@ -27,6 +28,7 @@
   lineinfile:
     dest: /etc/modules
     line: "{{ item }}"
+    state: absent
   become: True
   when: not modules_load_stat.stat.exists
   with_items: "{{ ib_mods }}"

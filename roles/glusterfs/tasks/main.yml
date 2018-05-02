@@ -1,0 +1,23 @@
+---
+- name: Ensure mount path exists
+  file:
+    path: /mnt/gluster
+    state: directory
+  become: True
+
+- name: Unmount glusterfs volume
+  mount:
+    fstype: glusterfs
+    src: "{{ gluster_src }}"
+    path: /mnt/gluster
+    state: absent
+  become: True
+
+- name: Mount glusterfs volume
+  mount:
+    fstype: glusterfs
+    src: "{{ gluster_src }}"
+    path: /mnt/gluster
+    state: present
+  become: True
+  notify: Mount all
