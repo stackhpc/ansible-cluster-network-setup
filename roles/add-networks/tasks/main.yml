@@ -16,6 +16,9 @@
   add_host:
     hostname: "{{ item[1].ID }}"
     ansible_host: "{{ item[0] }}"
+    ansible_user: "{{ cluster_user }}"
+    ansible_network_os: "{{ cluster_os }}"
+    networks: "{{ item[1].Networks.split('; ') | join('\n') | regex_replace('=', ': ') | from_yaml }}"
     groups:
     - masters
     - cluster
@@ -27,13 +30,15 @@
     hostname: "{{ item[1].ID }}"
     ansible_host: "{{ item[0] }}"
     ansible_user: "{{ cluster_user }}"
-    Networks: "{{ item[1].Networks }}"
     networks: "{{ item[1].Networks.split('; ') | join('\n') | regex_replace('=', ': ') | from_yaml }}"
     groups:
     - workers
     - cluster
   when: item[1].Networks is search(item[0])
   loop: "{{ query('nested', addresses.node_addresses, servers) }}"
+
+- debug:
+    var: hostvars
 
 - name: attach interfaces
   shell: "openstack server add network {{ item[0] }} {{ item[1] }}"

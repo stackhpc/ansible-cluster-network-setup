@@ -16,8 +16,9 @@
 
 - name: Make sure required modules are loaded at boot via /etc/modules-load.d
   lineinfile:
-    dest: /etc/modules-load.d/beegfs.conf
+    dest: /etc/modules-load.d/ib-mods.conf
     line: "{{ item }}"
+    create: yes
   become: True
   when: modules_load_stat.stat.exists
   with_items: "{{ ib_mods }}"
@@ -29,4 +30,11 @@
   become: True
   when: not modules_load_stat.stat.exists
   with_items: "{{ ib_mods }}"
+
+- name: Copy ifcfg-ib0 port up
+  template:
+    src: ifcfg-ib0.j2
+    dest: /etc/sysconfig/network-scripts/ifcfg-ib0
+  become: True
+  notify: Reload ib0 interface 
 ...

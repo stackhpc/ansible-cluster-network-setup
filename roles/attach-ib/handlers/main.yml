@@ -1,0 +1,4 @@
+---
+- name: Reload ib0 interface
+  shell: ifdown ib0 && ifup ib0
+  become: yes

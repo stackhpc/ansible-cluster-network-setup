@@ -1,0 +1,9 @@
+# Created by Ansible
+#
+BOOTPROTO=none
+DEVICE=ib0
+ONBOOT=yes
+NETWORK=10.3.0.0
+NETMASK=255.255.255.0
+IPADDR={{ hostvars[inventory_hostname]['networks']['p3-lln'] }}
+USERCTL=no
