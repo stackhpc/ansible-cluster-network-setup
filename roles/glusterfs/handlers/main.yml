@@ -1,5 +1,2 @@
 ---
-- name: Mount all
-  shell: mount -a
-  become: yes
 ...

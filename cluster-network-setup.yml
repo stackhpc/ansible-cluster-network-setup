@@ -7,7 +7,7 @@
   roles:
   - add-networks
 
-- hosts: workers
+- hosts: cluster
   gather_facts: no
   roles:
   - attach-ib

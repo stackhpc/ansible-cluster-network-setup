@@ -1,5 +1,5 @@
 ---
 networks:
-- p3-bdn
+- p3-bdn-nogateway
 - p3-lln
 ...

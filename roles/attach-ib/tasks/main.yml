@@ -1,42 +1,37 @@
 ---
-# Task flow inspired by MichaelRigart.interfaces role - thanks markgoddard
-# # Some systems do not support /etc/modules-load.d, in which case we fall back
-# # to /etc/modules.
-- name: Check whether /etc/modules-load.d exists
-  stat:
-    path: /etc/modules-load.d
-  register: modules_load_stat
+- name: delete bdn default route
+  shell: route del default eth4
+  ignore_errors: True
+  become: True
+
+- name: restart NetworkManager service
+  shell: systemctl restart NetworkManager
+  become: True
 
 - name: Ensure any required kernel modules are loaded
   modprobe:
     name: "{{ item }}"
-    state: absent
+    state: present
   become: True
   with_items: "{{ ib_mods }}"
 
 - name: Make sure required modules are loaded at boot via /etc/modules-load.d
-  lineinfile:
-    dest: /etc/modules-load.d/ib-mods.conf
-    line: "{{ item }}"
-    create: yes
+  file:
+    path: /etc/modules-load.d/ib-mods.conf
     state: absent
   become: True
-  when: modules_load_stat.stat.exists
-  with_items: "{{ ib_mods }}"
-
-- name: Make sure required modules are loaded at boot via /etc/modules
-  lineinfile:
-    dest: /etc/modules
-    line: "{{ item }}"
-    state: absent
-  become: True
-  when: not modules_load_stat.stat.exists
-  with_items: "{{ ib_mods }}"
 
 - name: Copy ifcfg-ib0 port up
   template:
     src: ifcfg-ib0.j2
     dest: /etc/sysconfig/network-scripts/ifcfg-ib0
   become: True
-  notify: Reload ib0 interface 
+
+- name: Stop ib0 interface
+  shell: ifup ib0
+  become: True
+
+- name: Start ib0 interface
+  shell: ifup ib0
+  become: True
 ...

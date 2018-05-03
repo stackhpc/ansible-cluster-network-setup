@@ -36,12 +36,13 @@
   when: item[1].Networks is search(item[0])
   loop: "{{ query('nested', addresses.node_addresses, servers) }}"
 
-- debug:
-    var: hostvars
+- name: remove p3-bdn interface
+  shell: "openstack server remove network {{ item }} p3-bdn"
+  when: hostvars[item]['networks']['p3-bdn'] is defined
+  loop: "{{ groups['cluster'] }}"
 
 - name: attach interfaces
   shell: "openstack server add network {{ item[0] }} {{ item[1] }}"
-  #debug: var=hostvars[item[0]]['networks'][item[1]]
-  when: hostvars[item[0]]['networks'] is defined and hostvars[item[0]]['networks'][item[1]] is not defined
+  when: hostvars[item[0]]['networks'][item[1]] is not defined
   loop: "{{ query('nested', groups['cluster'], networks) }}"
 ...
