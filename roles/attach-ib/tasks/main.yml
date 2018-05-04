@@ -1,7 +1,6 @@
 ---
-- name: delete bdn default route
-  shell: route del default eth4
-  ignore_errors: True
+- name: flush eth4
+  shell: ip addr flush dev eth4
   become: True
 
 - name: restart NetworkManager service
