@@ -1,18 +1,18 @@
 ---
-- name: get node and master addresses
+- name: Get floating IP of nodes in a Magnum cluster using Openstack CLI
   shell: "openstack coe cluster show {{ cluster_name }} -c master_addresses -c node_addresses -f json"
   register: result_addresses
 
-- name: get list of servers
+- name: Get a list of all running servers using Openstack CLI
   shell: "openstack server list -c ID -c Networks -f json"
   register: result_servers
 
-- name: convert results to json
+- name: Convert results from JSON to dictionary format
   set_fact:
     addresses: "{{ result_addresses.stdout | from_json }}"
     servers: "{{ result_servers.stdout | from_json }}"
 
-- name: add masters
+- name: Add master nodes to inventory
   add_host:
     hostname: "{{ item[1].ID }}"
     ansible_host: "{{ item[0] }}"
@@ -24,7 +24,7 @@
   when: item[1].Networks is search(item[0])
   loop: "{{ query('nested', addresses.master_addresses, servers) }}"
 
-- name: add workers
+- name: Add worker nodes to inventory
   add_host:
     hostname: "{{ item[1].ID }}"
     ansible_host: "{{ item[0] }}"
@@ -36,12 +36,7 @@
   when: item[1].Networks is search(item[0])
   loop: "{{ query('nested', addresses.node_addresses, servers) }}"
 
-- name: remove p3-bdn interface
-  shell: "openstack server remove network {{ item }} p3-bdn"
-  when: hostvars[item]['networks']['p3-bdn'] is defined
-  loop: "{{ groups['cluster'] }}"
-
-- name: attach interfaces
+- name: Attach network interfaces to the nodes in the cluster
   shell: "openstack server add network {{ item[0] }} {{ item[1] }}"
   when: hostvars[item[0]]['networks'][item[1]] is not defined
   loop: "{{ query('nested', groups['cluster'], networks) }}"

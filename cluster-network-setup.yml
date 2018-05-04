@@ -5,23 +5,16 @@
     cluster_name: swarm-bharat
     cluster_user: fedora
   roles:
-  - add-networks
+  - cluster-inventory
 
 - hosts: cluster
-  gather_facts: False
   vars:
-    cluster_user: "{{ hostvars[inventory_hostname]['ansible_user'] }}"
+    p3_lln_ip: "{{ hostvars[inventory_hostname]['networks']['p3-lln'] }}"
+    gluster_src: "10.3.0.12:/swarm_vol"
+    mount_path: "/mnt/gluster" 
+  gather_facts: False
   roles:
   - attach-ib
-  - { role: glusterfs, gluster_src: '10.3.0.12:/swarm_vol' }
-  tasks:
-  - name: Additional public keys to be authorized to access the cluster nodes
-    authorized_key:
-      key: "{{ lookup('file', 'public_keys/' + item) }}"
-      user: "{{ cluster_user }}"
-      state: present
-    loop:
-    - stig
-    - doug
-    ignore_errors: True
+  - glusterfs
+  - copy-keys
 ...
