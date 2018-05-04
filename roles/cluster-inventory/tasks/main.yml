@@ -3,8 +3,11 @@
   shell: "openstack coe cluster show {{ cluster_name }} -c master_addresses -c node_addresses -f json"
   register: result_addresses
 
+- debug:
+    var: ansible_user
+
 - name: Get a list of all running servers using Openstack CLI
-  shell: "openstack server list -c ID -c Networks -f json"
+  shell: "openstack server list -c ID -c Networks -f json --user {{ ansible_user }}"
   register: result_servers
 
 - name: Convert results from JSON to dictionary format
