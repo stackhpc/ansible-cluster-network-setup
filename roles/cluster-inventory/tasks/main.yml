@@ -3,9 +3,6 @@
   shell: "openstack coe cluster show {{ cluster_name }} -c master_addresses -c node_addresses -f json"
   register: result_addresses
 
-- debug:
-    var: ansible_user
-
 - name: Get a list of all running servers using Openstack CLI
   shell: "openstack server list -c ID -c Networks -f json --user {{ ansible_user }}"
   register: result_servers
@@ -39,6 +36,8 @@
   when: item[1].Networks is search(item[0])
   loop: "{{ query('nested', addresses.node_addresses, servers) }}"
 
+# NOTE: This is necessary due to the fact that Magnum currently is not able to
+# attach more than one network interface to cluster nodes that it provisions.
 - name: Attach network interfaces to the nodes in the cluster
   shell: "openstack server add network {{ item[0] }} {{ item[1] }}"
   when: hostvars[item[0]]['networks'][item[1]] is not defined

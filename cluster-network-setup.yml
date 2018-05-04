@@ -1,20 +1,15 @@
 ---
 - hosts: localhost
   gather_facts: False
-  vars:
-    cluster_name: swarm-bharat
-    cluster_user: fedora
   roles:
   - cluster-inventory
 
 - hosts: cluster
   vars:
-    p3_lln_ip: "{{ hostvars[inventory_hostname]['networks']['p3-lln'] }}"
-    gluster_src: "10.3.0.12:/swarm_vol"
-    mount_path: "/mnt/gluster" 
+    ib_ip: "{{ hostvars[inventory_hostname]['networks'][lln_name] }}"
   gather_facts: False
   roles:
   - attach-ib
   - glusterfs
-  - copy-keys
+  - copy-authorized-keys
 ...

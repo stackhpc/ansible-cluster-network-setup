@@ -1,0 +1,8 @@
+---
+- name: Restart NetworkManager service
+  systemd:
+    name: NetworkManager
+    enabled: True
+    state: restarted
+  become: True
+...

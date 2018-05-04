@@ -1,36 +1,8 @@
 ---
-- name: flush eth4
-  shell: ip addr flush dev eth4
-  become: True
-
-- name: restart NetworkManager service
-  shell: systemctl restart NetworkManager
-  become: True
-
-- name: Ensure any required kernel modules are loaded
-  modprobe:
-    name: "{{ item }}"
-    state: present
-  become: True
-  with_items: "{{ ib_mods }}"
-
-- name: Make sure required modules are loaded at boot via /etc/modules-load.d
-  file:
-    path: /etc/modules-load.d/ib-mods.conf
-    state: absent
-  become: True
-
-- name: Copy ifcfg-ib0 port up
+- name: Copy ifcfg-ib0 network script over
   template:
     src: ifcfg-ib0.j2
     dest: /etc/sysconfig/network-scripts/ifcfg-ib0
   become: True
-
-- name: Stop ib0 interface
-  shell: ifup ib0
-  become: True
-
-- name: Start ib0 interface
-  shell: ifup ib0
-  become: True
+  notify: Restart NetworkManager service
 ...
