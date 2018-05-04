@@ -4,6 +4,7 @@
     key: "{{ lookup('file', item) }}"
     user: "{{ ansible_user }}"
     state: present
-  loop: "{{ lookup('fileglob', public_keys_path) }}"
-  ignore_errors: True
+  with_fileglob:
+  - "{{ public_keys_path }}/*"
+  when: public_keys_path is defined
 ...

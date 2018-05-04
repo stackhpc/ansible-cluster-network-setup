@@ -10,5 +10,5 @@ ib_netmask: 255.255.255.0
 networks:
 - "{{ bdn_name }}"
 - "{{ lln_name }}"
-public_keys_path: ./public_keys/
+public_keys_path: public_keys
 ...
