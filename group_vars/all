@@ -1,6 +1,7 @@
 ---
 cluster_name: swarm-bharat
 cluster_user: fedora
+cluster_owner: bharat
 gluster_src: "10.3.0.12:/swarm_vol"
 mount_path: /mnt/gluster
 lln_name: p3-lln

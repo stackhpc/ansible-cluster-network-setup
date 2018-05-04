@@ -4,7 +4,7 @@
   register: result_addresses
 
 - name: Get a list of all running servers using Openstack CLI
-  shell: "openstack server list -c ID -c Networks -f json --user {{ ansible_user }}"
+  shell: "openstack server list -c ID -c Networks -f json --user {{ cluster_owner | default(ansible_user) }}"
   register: result_servers
 
 - name: Convert results from JSON to dictionary format
