@@ -1,0 +1,14 @@
+---
+cluster_name: swarm-bharat
+cluster_user: fedora
+cluster_owner: bharat
+gluster_src: "10.3.0.12:/swarm_vol"
+mount_path: /mnt/gluster
+lln_name: p3-lln
+bdn_name: p3-bdn-nogateway
+ib_netmask: 255.255.255.0
+networks:
+- "{{ bdn_name }}"
+- "{{ lln_name }}"
+public_keys_path: public_keys
+...

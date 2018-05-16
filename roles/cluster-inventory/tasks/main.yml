@@ -1,0 +1,45 @@
+---
+- name: Get floating IP of nodes in a Magnum cluster using Openstack CLI
+  shell: "openstack coe cluster show {{ cluster_name }} -c master_addresses -c node_addresses -f json"
+  register: result_addresses
+
+- name: Get a list of all running servers using Openstack CLI
+  shell: "openstack server list -c ID -c Networks -f json --user {{ cluster_owner | default(ansible_user) }}"
+  register: result_servers
+
+- name: Convert results from JSON to dictionary format
+  set_fact:
+    addresses: "{{ result_addresses.stdout | from_json }}"
+    servers: "{{ result_servers.stdout | from_json }}"
+
+- name: Add master nodes to inventory
+  add_host:
+    hostname: "{{ item[1].ID }}"
+    ansible_host: "{{ item[0] }}"
+    ansible_user: "{{ cluster_user }}"
+    networks: "{{ item[1].Networks.split('; ') | join('\n') | regex_replace('=', ': ') | from_yaml }}"
+    groups:
+    - masters
+    - cluster
+  when: item[1].Networks is search(item[0])
+  loop: "{{ query('nested', addresses.master_addresses, servers) }}"
+
+- name: Add worker nodes to inventory
+  add_host:
+    hostname: "{{ item[1].ID }}"
+    ansible_host: "{{ item[0] }}"
+    ansible_user: "{{ cluster_user }}"
+    networks: "{{ item[1].Networks.split('; ') | join('\n') | regex_replace('=', ': ') | from_yaml }}"
+    groups:
+    - workers
+    - cluster
+  when: item[1].Networks is search(item[0])
+  loop: "{{ query('nested', addresses.node_addresses, servers) }}"
+
+# NOTE: This is necessary due to the fact that Magnum currently is not able to
+# attach more than one network interface to cluster nodes that it provisions.
+- name: Attach network interfaces to the nodes in the cluster
+  shell: "openstack server add network {{ item[0] }} {{ item[1] }}"
+  when: hostvars[item[0]]['networks'][item[1]] is not defined
+  loop: "{{ query('nested', groups['cluster'], networks) }}"
+...

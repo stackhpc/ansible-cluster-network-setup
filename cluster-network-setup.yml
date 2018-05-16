@@ -1,6 +1,15 @@
 ---
 - hosts: localhost
-  gather_facts: no
+  gather_facts: False
   roles:
-  - ansible-cluster-network-setup
+  - cluster-inventory
+
+- hosts: cluster
+  vars:
+    ib_ip: "{{ hostvars[inventory_hostname]['networks'][lln_name] }}"
+  gather_facts: False
+  roles:
+  - attach-ib
+  - glusterfs
+  - copy-authorized-keys
 ...
